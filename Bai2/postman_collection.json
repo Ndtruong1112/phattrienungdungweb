@@ -1,0 +1,167 @@
+{
+	"info": {
+		"_postman_id": "student-management-api",
+		"name": "Spring Boot Student Management API",
+		"description": "Bộ Collection kiểm thử API Spring Boot quản lý sinh viên (MySQL + Maven)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. GET All Students (Lấy danh sách sinh viên)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/students",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["students"]
+				}
+			}
+		},
+		{
+			"name": "2. GET Students (Sắp xếp theo tên)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/students?sortBy=name&direction=asc",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["students"],
+					"query": [
+						{ "key": "sortBy", "value": "name" },
+						{ "key": "direction", "value": "asc" }
+					]
+				}
+			}
+		},
+		{
+			"name": "3. GET Students by Department (Lọc theo khoa)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/students?department=Cong nghe thong tin",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["students"],
+					"query": [
+						{ "key": "department", "value": "Cong nghe thong tin" }
+					]
+				}
+			}
+		},
+		{
+			"name": "4. GET Student by ID (Lấy 1 sinh viên)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/students/1",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["students", "1"]
+				}
+			}
+		},
+		{
+			"name": "5. POST Create Student (Thêm sinh viên mới)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Pham Van D\",\n    \"dob\": \"2003-12-01\",\n    \"department\": \"Ke toan\",\n    \"email\": \"vand@gmail.com\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/students",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["students"]
+				}
+			}
+		},
+		{
+			"name": "6. PUT Update Student (Cập nhật sinh viên)",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Nguyen Van A Updated\",\n    \"dob\": \"2003-05-15\",\n    \"department\": \"An toan thong tin\",\n    \"email\": \"vana_updated@gmail.com\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/students/1",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["students", "1"]
+				}
+			}
+		},
+		{
+			"name": "7. DELETE Student (Xóa sinh viên)",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/students/1",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["students", "1"]
+				}
+			}
+		},
+		{
+			"name": "8. [BÀI 2] Custom Query - Tìm theo Khoa (@Query JPQL)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/students/custom/by-department?department=Cong nghe thong tin",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["students", "custom", "by-department"],
+					"query": [
+						{
+							"key": "department",
+							"value": "Cong nghe thong tin"
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "9. [BÀI 2] Custom Query - Tìm theo từ khóa (@Query JPQL)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/students/custom/search?keyword=Cong",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["students", "custom", "search"],
+					"query": [
+						{
+							"key": "keyword",
+							"value": "Cong"
+						}
+					]
+				}
+			}
+		}
+	]
+}
