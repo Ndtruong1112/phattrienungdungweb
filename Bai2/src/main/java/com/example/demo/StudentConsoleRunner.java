@@ -1,6 +1,5 @@
 package com.example.demo;
 
-import com.example.demo.dao.IStudentDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -14,16 +13,13 @@ public class StudentConsoleRunner implements CommandLineRunner {
     @Autowired
     private StudentRepository studentRepository;
 
-    @Autowired
-    private IStudentDao studentDao;
-
     @Override
     public void run(String... args) throws Exception {
         System.out.println();
         System.out.println("==========================================================================================");
         System.out.println("   [JAVA SPRING BOOT] HỆ THỐNG QUẢN LÝ SINH VIÊN (MAVEN + MYSQL)");
         System.out.println("   CÁC TRƯỜNG DB: ID | STUDENT NAME | DOB (DATE OF BIRTH) | DEPARTMENT | EMAIL");
-        System.out.println("   KIẾN TRÚC: Spring Data JPA + Hibernate Generic DAO Pattern (dao & hibernatedao)");
+        System.out.println("   BÀI TẬP 2: TÙY CHỈNH TRUY VẤN DỮ LIỆU BẰNG @QUERY (JPQL)");
         System.out.println("==========================================================================================");
 
         try {

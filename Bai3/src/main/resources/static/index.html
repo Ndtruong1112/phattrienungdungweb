@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Đào Tạo & Sinh Viên - Spring Boot</title>
+    <title>Quản Lý Sinh Viên - Spring Boot & MySQL</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -17,8 +17,43 @@
     <div class="container">
         <!-- Header -->
         <div class="text-center mb-4">
-            <h2 class="fw-bold text-primary">🎓 Hệ Thống Quản Lý Đào Tạo & Sinh Viên</h2>
-            <p class="text-muted">Spring Boot Enterprise Architecture: Controller (rest) • Service (service/impl) • DAO (dao/impl) • Hibernate/MySQL</p>
+            <h2 class="fw-bold text-primary">🎓 Hệ Thống Quản Lý Sinh Viên</h2>
+            <p class="text-muted">Spring Boot Backend (Java) • MySQL Database • Maven • REST API & Custom @Query</p>
+        </div>
+
+        <!-- KHU VỰC TEST BÀI 2: CUSTOM QUERY -->
+        <div class="card p-3 mb-4 query-box">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <h5 class="fw-bold text-indigo mb-0 text-primary">
+                    🔍 [BÀI 2] Khu Vực Thử Nghiệm Câu Query Tự Viết (@Query trong StudentRepository)
+                </h5>
+                <button class="btn btn-sm btn-outline-secondary" onclick="resetToAll()">🔄 Xem lại tất cả</button>
+            </div>
+            <p class="text-muted small mb-3">
+                Thay vì chỉ lấy hết danh sách như Bài 1, Bài 2 cho phép bạn viết câu lệnh truy vấn lọc dữ liệu theo ý muốn.
+            </p>
+            <div class="row g-2">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white small fw-semibold">Query 1 (Theo Khoa)</span>
+                        <input type="text" id="deptQueryInput" class="form-control" placeholder="Ví dụ: Cong nghe thong tin" value="Cong nghe thong tin">
+                        <button class="btn btn-primary" onclick="runQueryByDept()">Lọc</button>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white small fw-semibold">Query 2 (Từ khóa)</span>
+                        <input type="text" id="keywordQueryInput" class="form-control" placeholder="Ví dụ: An, Cuong, Trường...">
+                        <button class="btn btn-success" onclick="runQueryByKeyword()">Tìm</button>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-primary w-100" onclick="resetToAll()">Tất cả SV</button>
+                </div>
+            </div>
+            <div id="queryStatusAlert" class="mt-2 text-primary small fw-semibold d-none">
+                💡 Đang chạy: <code id="queryStatusCode" class="bg-white p-1 rounded"></code>
+            </div>
         </div>
 
         <div class="row g-4">
@@ -40,11 +75,7 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Khoa / Ngành (Department)</label>
-                        <select id="departmentSelect" class="form-select">
-                            <option value="1">1 - Công nghệ thông tin (CNTT)</option>
-                            <option value="2">2 - Khoa học máy tính (KHMT)</option>
-                            <option value="3">3 - Quản trị kinh doanh (QTKD)</option>
-                        </select>
+                        <input type="text" id="department" class="form-control" placeholder="Ví dụ: Cong nghe thong tin">
                     </div>
 
                     <div class="mb-3">
@@ -59,19 +90,29 @@
                 </div>
             </div>
 
-            <!-- Cột Danh Sách Sinh Viên -->
+            <!-- Cột Danh Sách Sinh Viên & Sắp Xếp -->
             <div class="col-lg-8">
                 <div class="card p-4">
                     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
                         <h4 class="fw-bold m-0 text-dark" id="tableHeaderTitle">📋 Danh Sách Sinh Viên</h4>
-                        <button class="btn btn-sm btn-outline-primary" onclick="loadStudents()">🔄 Làm mới</button>
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="fw-semibold text-nowrap">Sắp xếp:</label>
+                            <select id="sortSelect" class="form-select form-select-sm" onchange="loadStudents()">
+                                <option value="id-asc">Mã ID (Tăng dần)</option>
+                                <option value="id-desc">Mã ID (Giảm dần)</option>
+                                <option value="name-asc">Tên (A -> Z)</option>
+                                <option value="name-desc">Tên (Z -> A)</option>
+                                <option value="dob-asc">Ngày sinh (Cũ -> Mới)</option>
+                                <option value="department-asc">Khoa / Ngành (A -> Z)</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="table-responsive">
                         <table class="table table-hover table-bordered">
                             <thead class="table-light">
                                 <tr>
-                                    <th style="width: 70px;">ID</th>
+                                    <th style="width: 60px;">ID</th>
                                     <th>Họ và Tên</th>
                                     <th>Ngày Sinh</th>
                                     <th>Khoa / Ngành</th>
@@ -98,43 +139,42 @@
             tbody.innerHTML = '';
 
             if (!students || students.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">Chưa có sinh viên nào trong CSDL</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">Không tìm thấy sinh viên nào phù hợp</td></tr>';
                 return;
             }
 
             students.forEach(s => {
-                const sId = s.studentId || s.id;
-                const sName = s.studentName || s.name || '';
-                const safeName = sName.replace(/'/g, "\\'");
-                const sEmail = s.email || '';
-                const safeEmail = sEmail.replace(/'/g, "\\'");
-                const sDob = s.dob || '';
-                const deptName = s.department ? s.department.departmentName : ('Khoa #' + (s.departmentId || ''));
-                const deptId = s.departmentId || (s.department ? s.department.departmentId : 1);
+                const safeName = (s.name || '').replace(/'/g, "\\'");
+                const safeDept = (s.department || '').replace(/'/g, "\\'");
+                const safeEmail = (s.email || '').replace(/'/g, "\\'");
+                const safeDob = s.dob || '';
 
                 tbody.innerHTML += `
                     <tr>
-                        <td class="fw-bold">${sId}</td>
-                        <td class="fw-semibold text-dark">${sName}</td>
-                        <td>${sDob ? sDob : '<span class="text-muted">Chưa có</span>'}</td>
-                        <td><span class="badge-dept">${deptName}</span></td>
-                        <td>${sEmail}</td>
+                        <td class="fw-bold">${s.id}</td>
+                        <td class="fw-semibold text-dark">${s.name || ''}</td>
+                        <td>${s.dob ? s.dob : '<span class="text-muted">Chưa có</span>'}</td>
+                        <td><span class="badge-dept">${s.department || 'Chưa phân khoa'}</span></td>
+                        <td>${s.email || ''}</td>
                         <td class="text-center">
-                            <button class="btn btn-sm btn-outline-warning me-1" onclick="editStudent(${sId}, '${safeName}', '${sDob}', ${deptId}, '${safeEmail}')">Sửa</button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteStudent(${sId})">Xóa</button>
+                            <button class="btn btn-sm btn-outline-warning me-1" onclick="editStudent(${s.id}, '${safeName}', '${safeDob}', '${safeDept}', '${safeEmail}')">Sửa</button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteStudent(${s.id})">Xóa</button>
                         </td>
                     </tr>
                 `;
             });
         }
 
+        // 1. Tải danh sách tất cả sinh viên
         async function loadStudents() {
+            const [sortBy, direction] = document.getElementById('sortSelect').value.split('-');
             document.getElementById('loading').classList.remove('d-none');
+            
             try {
-                const response = await fetch(API_URL);
+                const response = await fetch(`${API_URL}?sortBy=${sortBy}&direction=${direction}`);
                 const students = await response.json();
                 renderStudents(students);
-                document.getElementById('tableHeaderTitle').innerText = '📋 Danh Sách Sinh Viên (' + students.length + ')';
+                document.getElementById('tableHeaderTitle').innerText = '📋 Danh Sách Tất Cả Sinh Viên (' + students.length + ')';
             } catch (err) {
                 console.error("Lỗi khi tải dữ liệu:", err);
             } finally {
@@ -142,11 +182,69 @@
             }
         }
 
+        // BÀI 2: Chạy Custom Query 1 (Tìm theo khoa)
+        async function runQueryByDept() {
+            const dept = document.getElementById('deptQueryInput').value.trim();
+            if (!dept) {
+                alert("Vui lòng nhập tên khoa!");
+                return;
+            }
+            document.getElementById('loading').classList.remove('d-none');
+            try {
+                const url = `${API_URL}/custom/by-department?department=${encodeURIComponent(dept)}`;
+                const response = await fetch(url);
+                const students = await response.json();
+                renderStudents(students);
+
+                const alertBox = document.getElementById('queryStatusAlert');
+                const codeBox = document.getElementById('queryStatusCode');
+                alertBox.classList.remove('d-none');
+                codeBox.innerText = `@Query("SELECT s FROM Student s WHERE LOWER(s.department) = LOWER('${dept}')") -> Tìm thấy ${students.length} kết quả`;
+                document.getElementById('tableHeaderTitle').innerText = `🔍 Kết Quả Lọc Khoa '${dept}' (${students.length})`;
+            } catch (err) {
+                console.error(err);
+            } finally {
+                document.getElementById('loading').classList.add('d-none');
+            }
+        }
+
+        // BÀI 2: Chạy Custom Query 2 (Tìm theo từ khóa)
+        async function runQueryByKeyword() {
+            const kw = document.getElementById('keywordQueryInput').value.trim();
+            if (!kw) {
+                alert("Vui lòng nhập từ khóa cần tìm!");
+                return;
+            }
+            document.getElementById('loading').classList.remove('d-none');
+            try {
+                const url = `${API_URL}/custom/search?keyword=${encodeURIComponent(kw)}`;
+                const response = await fetch(url);
+                const students = await response.json();
+                renderStudents(students);
+
+                const alertBox = document.getElementById('queryStatusAlert');
+                const codeBox = document.getElementById('queryStatusCode');
+                alertBox.classList.remove('d-none');
+                codeBox.innerText = `@Query("SELECT s FROM Student s WHERE s.name LIKE '%${kw}%' OR s.department LIKE '%${kw}%'") -> Tìm thấy ${students.length} kết quả`;
+                document.getElementById('tableHeaderTitle').innerText = `🔍 Kết Quả Tìm Từ Khóa '${kw}' (${students.length})`;
+            } catch (err) {
+                console.error(err);
+            } finally {
+                document.getElementById('loading').classList.add('d-none');
+            }
+        }
+
+        function resetToAll() {
+            document.getElementById('queryStatusAlert').classList.add('d-none');
+            loadStudents();
+        }
+
+        // Thêm mới hoặc Cập nhật
         async function saveStudent() {
             const id = document.getElementById('studentId').value;
             const name = document.getElementById('name').value.trim();
             const dob = document.getElementById('dob').value;
-            const departmentId = parseInt(document.getElementById('departmentSelect').value);
+            const department = document.getElementById('department').value.trim();
             const email = document.getElementById('email').value.trim();
 
             if (!name) {
@@ -154,12 +252,7 @@
                 return;
             }
 
-            const studentData = {
-                studentName: name,
-                dob: dob ? dob : null,
-                departmentId: departmentId,
-                email: email
-            };
+            const studentData = { name, dob: dob ? dob : null, department, email };
 
             try {
                 if (id) {
@@ -183,6 +276,7 @@
             }
         }
 
+        // Xóa sinh viên
         async function deleteStudent(id) {
             if (confirm(`Bạn có chắc muốn xóa sinh viên ID = ${id}?`)) {
                 try {
@@ -194,11 +288,12 @@
             }
         }
 
-        function editStudent(id, name, dob, deptId, email) {
+        // Điền form sửa
+        function editStudent(id, name, dob, department, email) {
             document.getElementById('studentId').value = id;
             document.getElementById('name').value = name;
             document.getElementById('dob').value = dob;
-            document.getElementById('departmentSelect').value = deptId || 1;
+            document.getElementById('department').value = department;
             document.getElementById('email').value = email;
 
             document.getElementById('formTitle').innerText = '✏️ Cập Nhật Sinh Viên';
@@ -206,11 +301,12 @@
             document.getElementById('btnCancel').classList.remove('d-none');
         }
 
+        // Hủy sửa
         function cancelEdit() {
             document.getElementById('studentId').value = '';
             document.getElementById('name').value = '';
             document.getElementById('dob').value = '';
-            document.getElementById('departmentSelect').value = 1;
+            document.getElementById('department').value = '';
             document.getElementById('email').value = '';
 
             document.getElementById('formTitle').innerText = '➕ Thêm Sinh Viên Mới';
@@ -218,6 +314,7 @@
             document.getElementById('btnCancel').classList.add('d-none');
         }
 
+        // Tải dữ liệu ban đầu
         loadStudents();
     </script>
 </body>

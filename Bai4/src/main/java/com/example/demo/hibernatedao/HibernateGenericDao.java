@@ -1,4 +1,4 @@
-package com.example.demo.hibernatedao;
+package com.example.demo.hibernateDao;
 
 import com.example.demo.dao.IGenericDao;
 import jakarta.persistence.EntityManager;
