@@ -14,6 +14,7 @@ Repository tổng hợp các bài tập, bài thực hành và dự án môn **P
 | :---: | :--- | :--- | :---: |
 | [**`Bai1/`**](./Bai1) | **Bài 1: Quản Lý Sinh Viên Cơ Bản** | Ứng dụng Java Spring Boot kết nối MySQL, quản lý thông tin sinh viên (`id`, `name`, `dob`, `department`, `email`). Hỗ trợ hiển thị bảng dữ liệu ra màn hình Console khi chạy và cung cấp REST API đầy đủ CRUD với định dạng JSON qua Postman. |  **Hoàn thành** |
 | [**`Bai2/`**](./Bai2) | **Bài 2: Custom Query & Hibernate Generic DAO** | Tùy biến truy vấn với `@Query` JPQL (tìm theo khoa, từ khóa), gọi trong Console Runner và Controller, tích hợp kiến trúc Generic DAO Pattern (`dao` & `hibernatedao`). |  **Hoàn thành** |
+| [**`Bai3/`**](./Bai3) | **Bài 3: Kiến Trúc Doanh Nghiệp Toàn Diện** | Xây dựng hệ thống 3 thực thể (`departments`, `students`, `class_info`), phân tầng chuẩn doanh nghiệp: `model`, `dao` (với `impl`), `hibernateDao`, `service` (với `impl`), `rest` Controller. |  **Hoàn thành** |
 
 ---
 
