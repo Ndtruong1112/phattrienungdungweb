@@ -1,60 +1,60 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dao.IStudentDao;
-import com.example.demo.model.Student;
+import com.example.demo.entity.Student;
 import com.example.demo.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-@Transactional
 public class StudentServiceImpl implements StudentService {
 
     @Autowired
     private IStudentDao studentDao;
 
     @Override
-    public Student create(Student student) {
-        return studentDao.create(student);
-    }
-
-    @Override
-    public Student update(Long id, Student studentDetails) {
-        Student student = studentDao.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Student not found with id: " + id));
-        student.setStudentName(studentDetails.getStudentName());
-        student.setDob(studentDetails.getDob());
-        student.setEmail(studentDetails.getEmail());
-        student.setDepartmentId(studentDetails.getDepartmentId());
-        return studentDao.update(student);
-    }
-
-    @Override
-    public void delete(Long id) {
-        studentDao.deleteById(id);
-    }
-
-    @Override
-    public Optional<Student> getById(Long id) {
-        return studentDao.findById(id);
-    }
-
-    @Override
-    public List<Student> getAll() {
+    public List<Student> getAllStudents() {
         return studentDao.findAll();
     }
 
     @Override
-    public List<Student> getByName(String name) {
+    public Optional<Student> getStudentById(Long id) {
+        return studentDao.findById(id);
+    }
+
+    @Override
+    public Student createStudent(Student student) {
+        return studentDao.create(student);
+    }
+
+    @Override
+    public Student updateStudent(Long id, Student student) {
+        return studentDao.findById(id).map(existing -> {
+            existing.setStudentName(student.getStudentName());
+            existing.setDob(student.getDob());
+            existing.setEmail(student.getEmail());
+            if (student.getDepartment() != null) {
+                existing.setDepartment(student.getDepartment());
+            }
+            return studentDao.update(existing);
+        }).orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sinh viên có ID: " + id));
+    }
+
+    @Override
+    public void deleteStudent(Long id) {
+        studentDao.deleteById(id);
+    }
+
+    @Override
+    public List<Student> findByName(String name) {
         return studentDao.findByName(name);
     }
 
     @Override
-    public List<Student> getByDepartmentId(Long departmentId) {
-        return studentDao.findByDepartmentId(departmentId);
+    public List<Student> findByDepartment(String department) {
+        return studentDao.findByDepartment(department);
     }
 }

@@ -1,8 +1,8 @@
 package com.example.demo.dao.impl;
 
 import com.example.demo.dao.IStudentDao;
+import com.example.demo.entity.Student;
 import com.example.demo.hibernateDao.HibernateGenericDao;
-import com.example.demo.model.Student;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -26,10 +26,10 @@ public class StudentDaoImpl extends HibernateGenericDao<Long, Student> implement
     }
 
     @Override
-    public List<Student> findByDepartmentId(Long departmentId) {
+    public List<Student> findByDepartment(String department) {
         return entityManager.createQuery(
-                "SELECT s FROM Student s WHERE s.departmentId = :departmentId", Student.class)
-                .setParameter("departmentId", departmentId)
+                "SELECT s FROM Student s WHERE LOWER(s.department.departmentName) = LOWER(:department)", Student.class)
+                .setParameter("department", department)
                 .getResultList();
     }
 }

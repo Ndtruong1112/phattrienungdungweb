@@ -7,8 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
-
 public class HibernateGenericDao<Pk, Entity> extends SimpleJpaRepository<Entity, Pk> implements IGenericDao<Pk, Entity> {
 
     private static final Logger logger = LoggerFactory.getLogger(HibernateGenericDao.class);

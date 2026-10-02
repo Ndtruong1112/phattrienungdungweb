@@ -1,15 +1,16 @@
 package com.example.demo.service;
 
-import com.example.demo.model.Student;
+import com.example.demo.entity.Student;
+
 import java.util.List;
 import java.util.Optional;
 
 public interface StudentService {
-    Student create(Student student);
-    Student update(Long id, Student student);
-    void delete(Long id);
-    Optional<Student> getById(Long id);
-    List<Student> getAll();
-    List<Student> getByName(String name);
-    List<Student> getByDepartmentId(Long departmentId);
+    List<Student> getAllStudents();
+    Optional<Student> getStudentById(Long id);
+    Student createStudent(Student student);
+    Student updateStudent(Long id, Student student);
+    void deleteStudent(Long id);
+    List<Student> findByName(String name);
+    List<Student> findByDepartment(String department);
 }

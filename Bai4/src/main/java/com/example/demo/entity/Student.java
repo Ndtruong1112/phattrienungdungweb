@@ -1,4 +1,4 @@
-package com.example.demo.model;
+package com.example.demo.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
@@ -27,11 +27,8 @@ public class Student {
     @Column(name = "email", length = 100)
     private String email;
 
-    @Column(name = "department_id")
-    private Long departmentId;
-
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "department_id", insertable = false, updatable = false)
+    @JoinColumn(name = "department_id")
     private Department department;
 
     @CreationTimestamp
@@ -46,11 +43,11 @@ public class Student {
 
     public Student() {}
 
-    public Student(String studentName, LocalDate dob, String email, Long departmentId) {
+    public Student(String studentName, LocalDate dob, String email, Department department) {
         this.studentName = studentName;
         this.dob = dob;
         this.email = email;
-        this.departmentId = departmentId;
+        this.department = department;
     }
 
     public Long getStudentId() {
@@ -61,7 +58,6 @@ public class Student {
         this.studentId = studentId;
     }
 
-    // Helper getter/setter id để tương thích ngược nếu cần
     public Long getId() {
         return studentId;
     }
@@ -78,7 +74,6 @@ public class Student {
         this.studentName = studentName;
     }
 
-    // Helper getter/setter name
     public String getName() {
         return studentName;
     }
@@ -101,14 +96,6 @@ public class Student {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public Long getDepartmentId() {
-        return departmentId;
-    }
-
-    public void setDepartmentId(Long departmentId) {
-        this.departmentId = departmentId;
     }
 
     public Department getDepartment() {

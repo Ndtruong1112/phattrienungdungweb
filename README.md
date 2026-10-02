@@ -15,7 +15,7 @@ Repository tổng hợp các bài tập, bài thực hành và dự án môn **P
 | [**`Bai1/`**](./Bai1) | **Bài 1: Quản Lý Sinh Viên Cơ Bản** | Ứng dụng Java Spring Boot kết nối MySQL, quản lý thông tin sinh viên (`id`, `name`, `dob`, `department`, `email`). Hiển thị bảng dữ liệu ra màn hình Console khi khởi động và cung cấp REST API đầy đủ CRUD (Postman/Web UI). | ✅ **Hoàn thành** |
 | [**`Bai2/`**](./Bai2) | **Bài 2: Custom Query (@Query JPQL)** | Tùy biến truy vấn thực thể JPQL với annotation `@Query` trong `StudentRepository` (tìm theo khoa chính xác, tìm kiếm theo từ khóa tên hoặc khoa). Gọi thực thi trực tiếp trong `StudentConsoleRunner` và cung cấp API trong `StudentController`. | ✅ **Hoàn thành** |
 | [**`Bai3/`**](./Bai3) | **Bài 3: Mô Hình DAO & Hibernate DAO** | Triển khai mô hình Generic DAO Pattern kinh điển: `IGenericDao` & `HibernateGenericDao` kế thừa `SimpleJpaRepository` dùng `EntityManager`. Giao diện `IStudentDao` và triển khai `HibernateStudentDao` phục vụ quản lý sinh viên. | ✅ **Hoàn thành** |
-| [**`Bai4/`**](./Bai4) | **Bài 4: Kiến Trúc Doanh Nghiệp Toàn Diện** | Xây dựng hệ thống hoàn chỉnh 3 thực thể liên kết (`departments`, `students`, `class_info`), phân tầng chuẩn doanh nghiệp: `model`, `dao` (với `impl`), `hibernateDao`, `service` (với `impl`), `rest` Controller. | ✅ **Hoàn thành** |
+| [**`Bai4/`**](./Bai4) | **Bài 4: Kiến Trúc Doanh Nghiệp (DAO & Spring Data JPA)** | Cấu trúc phân tầng chuẩn mực kết hợp 2 kỹ thuật truy xuất dữ liệu: `Student` dùng Hibernate Generic DAO (`dao/impl/StudentDaoImpl` kế thừa `HibernateGenericDao`) và `User` dùng Spring Data JPA `UserRepository`. Tích hợp xử lý toàn vẹn khóa ngoại `resolveDepartment()` trong `StudentController`. | ✅ **Hoàn thành** |
 
 ---
 

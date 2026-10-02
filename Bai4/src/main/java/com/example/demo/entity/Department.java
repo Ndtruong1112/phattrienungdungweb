@@ -1,4 +1,4 @@
-package com.example.demo.model;
+package com.example.demo.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
@@ -22,7 +22,7 @@ public class Department {
     @Column(name = "department_name", length = 100)
     private String departmentName;
 
-    @Column(name = "description", length = 255)
+    @Column(name = "description")
     private String description;
 
     @CreationTimestamp
