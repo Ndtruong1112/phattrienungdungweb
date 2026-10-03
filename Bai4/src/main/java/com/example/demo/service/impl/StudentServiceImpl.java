@@ -4,6 +4,9 @@ import com.example.demo.dao.IStudentDao;
 import com.example.demo.entity.Student;
 import com.example.demo.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -56,5 +59,20 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<Student> findByDepartment(String department) {
         return studentDao.findByDepartment(department);
+    }
+
+    @Override
+    public List<Student> getStudentsSorted(Sort sort) {
+        return studentDao.findAll(sort);
+    }
+
+    @Override
+    public Page<Student> getStudentsPaged(Pageable pageable) {
+        return studentDao.findAll(pageable);
+    }
+
+    @Override
+    public Page<Student> getStudentsByDepartmentPaged(String department, Pageable pageable) {
+        return studentDao.findByDepartmentPaged(department, pageable);
     }
 }

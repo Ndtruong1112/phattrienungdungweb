@@ -7,6 +7,10 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +28,7 @@ public class StudentController {
     @PersistenceContext
     private EntityManager entityManager;
 
+    // 1. GET ALL hoặc tìm kiếm theo khoa/tên
     @GetMapping
     public List<Student> getAllStudents(
             @RequestParam(required = false) String department,
@@ -37,6 +42,49 @@ public class StudentController {
         return studentService.getAllStudents();
     }
 
+    // =========================================================================
+    // 2. SẮP XẾP KẾT QUẢ (SORTING - Theo bài viết Baeldung 1: Spring Data Sorting)
+    // Ví dụ: GET /students/sort?sortBy=studentName&direction=asc
+    // =========================================================================
+    @GetMapping("/sort")
+    public List<Student> getStudentsSorted(
+            @RequestParam(defaultValue = "studentId") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction) {
+        Sort sort = direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+        return studentService.getStudentsSorted(sort);
+    }
+
+    // =========================================================================
+    // 3. PHÂN TRANG & SẮP XẾP (PAGINATION & SORTING - Theo bài viết Baeldung 2)
+    // Ví dụ: GET /students/page?page=0&size=5&sortBy=studentName&direction=asc
+    // =========================================================================
+    @GetMapping("/page")
+    public Page<Student> getStudentsPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "studentId") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction) {
+        Sort sort = direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return studentService.getStudentsPaged(pageable);
+    }
+
+    // 4. PHÂN TRANG THEO KHOA
+    // Ví dụ: GET /students/page-by-department?department=Cong nghe thong tin&page=0&size=5
+    @GetMapping("/page-by-department")
+    public Page<Student> getStudentsByDepartmentPaged(
+            @RequestParam String department,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return studentService.getStudentsByDepartmentPaged(department, pageable);
+    }
+
+    // 5. GET BY ID
     @GetMapping("/{id}")
     public ResponseEntity<Student> getStudentById(@PathVariable Long id) {
         return studentService.getStudentById(id)
@@ -44,6 +92,7 @@ public class StudentController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // 6. POST (Tạo sinh viên)
     @PostMapping
     public ResponseEntity<?> createStudent(@RequestBody Student student) {
         try {
@@ -55,6 +104,7 @@ public class StudentController {
         }
     }
 
+    // 7. PUT (Cập nhật sinh viên)
     @PutMapping("/{id}")
     public ResponseEntity<?> updateStudent(@PathVariable Long id, @RequestBody Student studentDetails) {
         try {
@@ -66,6 +116,7 @@ public class StudentController {
         }
     }
 
+    // 8. DELETE (Xóa sinh viên)
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteStudent(@PathVariable Long id) {
         Optional<Student> existing = studentService.getStudentById(id);
@@ -74,16 +125,6 @@ public class StudentController {
         }
         studentService.deleteStudent(id);
         return ResponseEntity.ok("Đã xóa thành công sinh viên có id: " + id);
-    }
-
-    @GetMapping("/by-department")
-    public List<Student> getStudentsByDepartment(@RequestParam String department) {
-        return studentService.findByDepartment(department);
-    }
-
-    @GetMapping("/search")
-    public List<Student> searchStudents(@RequestParam String name) {
-        return studentService.findByName(name);
     }
 
     private void resolveDepartment(Student student) {

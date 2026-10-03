@@ -9,6 +9,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,12 +35,12 @@ public class StudentConsoleRunner implements CommandLineRunner {
     public void run(String... args) throws Exception {
         System.out.println();
         System.out.println("==========================================================================================");
-        System.out.println("   [BÀI 4 - SPRING BOOT] KIẾN TRÚC DOANH NGHIỆP: DAO + REPOSITORY + SERVICE + CONTROLLER");
-        System.out.println("   THỰC THỂ: Department, Student, User | CƠ CHẾ: HibernateGenericDao & JpaRepository");
+        System.out.println("   [BÀI 4 - SPRING BOOT] KIẾN TRÚC HIBERNATE DAO: PHÂN TRANG (PAGINATION) & SẮP XẾP (SORTING)");
+        System.out.println("   CÁC CLASS TRONG hibernateDao: HibernateGenericDao, HibernateStudentDao, HibernateDepartmentDao, HibernateUserDao");
         System.out.println("==========================================================================================");
 
         try {
-            // 1. Khởi tạo dữ liệu mẫu cho Khoa (Department) nếu chưa có
+            // 1. Khởi tạo dữ liệu mẫu cho Khoa nếu trống
             List<Department> depts = entityManager.createQuery("SELECT d FROM Department d", Department.class).getResultList();
             Department cntt;
             Department khmt;
@@ -55,66 +58,54 @@ public class StudentConsoleRunner implements CommandLineRunner {
                 khmt = depts.size() > 1 ? depts.get(1) : cntt;
             }
 
-            // 2. Khởi tạo dữ liệu mẫu cho User (Spring Data JPA)
+            // 2. Khởi tạo dữ liệu mẫu cho User nếu trống
             if (userRepository.count() == 0) {
                 System.out.println("[CONSOLE] Khởi tạo dữ liệu mẫu cho bảng 'users'...");
                 userRepository.save(new User("admin", "123456", "admin@school.edu.vn", "Quan Tri Vien", "ADMIN"));
                 userRepository.save(new User("gv_nam", "123456", "nam@school.edu.vn", "Nguyen Van Nam", "USER"));
             }
 
-            // 3. Khởi tạo dữ liệu mẫu cho Student (Hibernate Generic DAO)
+            // 3. Khởi tạo dữ liệu mẫu cho Student nếu trống
             if (studentService.getAllStudents().isEmpty()) {
                 System.out.println("[CONSOLE] Khởi tạo dữ liệu mẫu cho bảng 'students'...");
                 studentService.createStudent(new Student("Nguyen Van A", LocalDate.of(2003, 5, 15), "vana@gmail.com", cntt));
                 studentService.createStudent(new Student("Tran Thi B", LocalDate.of(2004, 8, 20), "thib@gmail.com", khmt));
                 studentService.createStudent(new Student("Le Van C", LocalDate.of(2002, 11, 10), "vanc@gmail.com", cntt));
+                studentService.createStudent(new Student("Pham Van D", LocalDate.of(2003, 1, 25), "vand@gmail.com", khmt));
+                studentService.createStudent(new Student("Hoang Thi E", LocalDate.of(2004, 3, 18), "thie@gmail.com", cntt));
             }
 
-            // 4. In bảng danh sách sinh viên
-            List<Student> students = studentService.getAllStudents();
-            System.out.println("\n[DATABASE REALTIME] DANH SÁCH SINH VIÊN (QUA DAO & SERVICE):");
-            System.out.println("+------+-------------------------+------------+-------------------------+-------------------------+");
-            System.out.printf("| %-4s | %-23s | %-10s | %-23s | %-23s |\n", "ID", "STUDENT NAME", "DOB", "DEPARTMENT", "EMAIL");
-            System.out.println("+------+-------------------------+------------+-------------------------+-------------------------+");
-            for (Student s : students) {
-                String deptName = s.getDepartment() != null ? s.getDepartment().getDepartmentName() : "N/A";
-                System.out.printf("| %-4d | %-23s | %-10s | %-23s | %-23s |\n",
-                        s.getStudentId(),
-                        s.getStudentName() != null ? s.getStudentName() : "",
-                        s.getDob() != null ? s.getDob().toString() : "N/A",
-                        deptName,
-                        s.getEmail() != null ? s.getEmail() : "");
+            // 4. DEMO SORTING (Theo bài viết Baeldung 1: Spring Data Sorting)
+            System.out.println("\n[DEMO BAELDUNG 1 - SORTING] DANH SÁCH SINH VIÊN SẮP XẾP THEO TÊN (A -> Z):");
+            List<Student> sortedList = studentService.getStudentsSorted(Sort.by("studentName").ascending());
+            for (Student s : sortedList) {
+                System.out.printf("   ID: %-2d | Tên: %-20s | Khoa: %-20s | Ngày sinh: %s\n",
+                        s.getStudentId(), s.getStudentName(),
+                        s.getDepartment() != null ? s.getDepartment().getDepartmentName() : "N/A",
+                        s.getDob());
             }
-            System.out.println("+------+-------------------------+------------+-------------------------+-------------------------+");
 
-            // 5. In danh sách Users
-            List<User> users = userRepository.findAll();
-            System.out.println("\n[DATABASE REALTIME] DANH SÁCH USERS (QUA SPRING DATA JPA REPOSITORY):");
-            System.out.println("+------+--------------------+--------------------+--------------------+");
-            System.out.printf("| %-4s | %-18s | %-18s | %-18s |\n", "ID", "USERNAME", "FULL NAME", "ROLE");
-            System.out.println("+------+--------------------+--------------------+--------------------+");
-            for (User u : users) {
-                System.out.printf("| %-4d | %-18s | %-18s | %-18s |\n",
-                        u.getUserId(), u.getUsername(), u.getFullName(), u.getRole());
+            // 5. DEMO PAGINATION (Theo bài viết Baeldung 2: Pagination and Sorting)
+            System.out.println("\n[DEMO BAELDUNG 2 - PAGINATION] PHÂN TRANG (Trang 0, Kích thước 2 sinh viên/trang):");
+            Page<Student> page0 = studentService.getStudentsPaged(PageRequest.of(0, 2, Sort.by("studentId").ascending()));
+            System.out.printf("   Tổng số sinh viên: %d | Tổng số trang: %d | Trang hiện tại: %d\n",
+                    page0.getTotalElements(), page0.getTotalPages(), page0.getNumber());
+            for (Student s : page0.getContent()) {
+                System.out.printf("   -> [Trang 0] ID: %-2d | Tên: %-20s | Email: %s\n",
+                        s.getStudentId(), s.getStudentName(), s.getEmail());
             }
-            System.out.println("+------+--------------------+--------------------+--------------------+");
 
         } catch (Exception e) {
             System.err.println("[CONSOLE WARNING] Chưa thể kết nối tới MySQL: " + e.getMessage());
         }
 
-        System.out.println("\n[HƯỚNG DẪN TEST API POSTMAN / BROWSER]:");
-        System.out.println("1. Web UI:           http://localhost:8080");
-        System.out.println("2. Sinh viên:        GET    http://localhost:8080/students");
-        System.out.println("                     GET    http://localhost:8080/students/1");
-        System.out.println("                     POST   http://localhost:8080/students");
-        System.out.println("                     PUT    http://localhost:8080/students/1");
-        System.out.println("                     DELETE http://localhost:8080/students/1");
-        System.out.println("3. Tra cứu Khoa:     GET    http://localhost:8080/students/by-department?department=Cong nghe thong tin");
-        System.out.println("4. Tìm kiếm Tên:     GET    http://localhost:8080/students/search?name=Nguyen");
-        System.out.println("5. Quản lý Users:    GET    http://localhost:8080/users");
-        System.out.println("                     POST   http://localhost:8080/users");
-        System.out.println("                     DELETE http://localhost:8080/users/1");
+        System.out.println("\n[CÁC API TEST POSTMAN / BROWSER THEO CHUẨN BAELDUNG]:");
+        System.out.println("1. Web UI:                       http://localhost:8080");
+        System.out.println("2. SẮP XẾP (Sorting):            GET http://localhost:8080/students/sort?sortBy=studentName&direction=asc");
+        System.out.println("3. PHÂN TRANG (Pagination):      GET http://localhost:8080/students/page?page=0&size=2&sortBy=studentId&direction=asc");
+        System.out.println("4. PHÂN TRANG THEO KHOA:         GET http://localhost:8080/students/page-by-department?department=Cong nghe thong tin&page=0&size=2");
+        System.out.println("5. CRUD Sinh viên:               GET/POST/PUT/DELETE http://localhost:8080/students");
+        System.out.println("6. Quản lý Users:                GET/POST/PUT/DELETE http://localhost:8080/users");
         System.out.println("==========================================================================================\n");
     }
 }
